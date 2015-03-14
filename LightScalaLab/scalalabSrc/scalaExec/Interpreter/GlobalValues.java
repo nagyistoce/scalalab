@@ -38,7 +38,7 @@ public class GlobalValues
 {
 
     
-    static public   String  scalalabBuildVersion = "08-Feb-15";    
+    static public   String  scalalabBuildVersion = "14-Mar-15";    
     
      static public boolean inScalaMode =  true;     // controls whether to use Scala Interpreter or Groovy Shell in order to retrieve the value of the variable under mouse cursor position
     static public ServerSocket scalalabServerSocket;

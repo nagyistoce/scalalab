@@ -3,31 +3,155 @@
   import java.net.Socket
   import scalaUtils.ScalaUtilitiesObject._
   import java.io.PrintWriter
+  import java.io._
   import java.util.Scanner
-  
+
+import scalaExec.Interpreter.GlobalValues
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants
+import org.fife.ui.rtextarea.RTextScrollPane
+
+import javax.swing._
+import java.awt.event.ActionEvent
+import java.awt.event.ActionListener
+
+// ScalalabServer performs computations using socket based communication
+object ScalalabServer {
+ 
+ 
+  // init the ScalaLab server
+  def init = {
+scalaUtils.ScalaUtilitiesObject.thread {  // init server with a seperate thread
+    GlobalValues.scalalabServerSocket =  new ServerSocket( GlobalValues.scalaLabServerPort)
+     
+    var saccepted = GlobalValues.scalalabServerSocket.accept   // accept a connection from the client
+   
+      //println("Server accepted socket "+saccepted.toString) 
+    var serverReadStream = saccepted.getInputStream   // input stream
     
-   var loopback = java.net.InetAddress.getLoopbackAddress
+    var reader = new DataInputStream(new BufferedInputStream(serverReadStream))
+    
+    var N = 20
+    var Ad = new Array[Double](N)
+      var hasFinished = false
+    while (!hasFinished) {
+          var len = reader.readInt
+          println("l en= "+ len)
+          var bd = new Array[Double](len)
+          for (k<-0 until len)
+            bd(k) = reader.readDouble
+            
+            println(" bd= "+bd.toString)
+
+   
+     }  // hasFinished
+     
+    
+   }  // server thread
+ } // init
+ 
+ 
+}
+
+
+
+ ScalalabServer.init
+
+// direct test
+var sclient = new Socket(InetAddress.getLoopbackAddress, GlobalValues.scalaLabServerPort)
+var clientWriteStream = sclient.getOutputStream
+var writer = new DataOutputStream(clientWriteStream)
+var x = Rand(4)
+var nx = x.length
+writer.writeInt(nx)
+for (k<-0 until nx)
+ writer.writeDouble(x(k))
+
+// compute eigenvalue of a matrix
+writer.println("A  20")
+writer.println("20")
+writer.write("eig\r\n")
+                            
+
+var clientFrame = new JFrame("Client Frame")
+ val jtxtpane = new org.fife.ui.rsyntaxtextarea.RSyntaxTextArea
+ jtxtpane.setFont(new java.awt.Font( GlobalValues.paneFontName,  java.awt.Font.PLAIN, GlobalValues.paneFontSize))
       
-     var s = new ServerSocket
-     var sa = new InetSocketAddress(loopback, 8000)
-      s.bind(sa)
+      var menuBar = new JMenuBar();
+      var serverMenu = new JMenu("Server")
+      var serverIPItem = new JMenuItem("Server IP")
+      serverMenu.add(serverIPItem)
+    
+       
+      var executeMenu = new JMenu("Execute")
+      var execTextItem = new JMenuItem("Execute text")
       
-      var sclient = new Socket
-      sclient.connect(sa, 8000)
+      serverIPItem.addActionListener( new ActionListener() {
+           def actionPerformed( e: ActionEvent) {
+               var serverIp = getString("Enter ScalaLab server IP")
+                sclient = new Socket(InetAddress.getLoopbackAddress, GlobalValues.scalaLabServerPort)
+                //println("client socket = "+sclient.toString)
+            }
+               })
+               
+       execTextItem.addActionListener( new ActionListener() {
+           def actionPerformed( e: ActionEvent) {
+               var cmdText = jtxtpane.getText
+              
+              var params = "v"
+              
+            var clientWriteStream = sclient.getOutputStream
+            var writer = new PrintWriter(clientWriteStream, true)
+            
+            writer.println(params)   //  parameters  for computation 
+            
+            println("ex text =  "+ cmdText)
+            writer.println(cmdText)
+ 
+                             }
+               })
       
-      var saccepted = s.accept
+      executeMenu.add(execTextItem)
+      menuBar.add(serverMenu)
+      menuBar.add(executeMenu)
       
-      var clientWriteStream = sclient.getOutputStream
+      var sclient:Socket = null
       
-      var serverReadStream = saccepted.getInputStream
+               
+      clientFrame.setJMenuBar(menuBar);
+   
       
-      var writer = new PrintWriter(clientWriteStream)
-      var reader = new Scanner(serverReadStream)
-      
-      writer.println("hi socket...")
-      
-      writer.flush
-      
-      var fromclient = reader.nextLine
-      
-      
+ jtxtpane.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_SCALA)
+ jtxtpane.setCodeFoldingEnabled(true)
+clientFrame.add(jtxtpane)
+ clientFrame.pack
+ clientFrame.setSize(300, 300)
+ clientFrame.setVisible(true)     
+ 
+ /*
+ 
+            //var params = reader.nextLine
+    // println("server params for computation = "+params)
+     
+     //var line = reader.nextLine
+     
+   /* println("FROM CLIENT "+line)
+
+       line match  {
+       case "eig"  => 
+          println("eigenvalue")
+          var asize = reader.nextDouble
+          println(" number  = "+ asize)
+       case _ => 
+          println("other ")
+          }  
+
+*/
+       /*
+      if (line.equals("exit"))
+      hasFinished = true
+    else {    // server executes the command
+      //GlobalValues.globalInterpreter.interpret(line)
+              }
+      }
+    
+  }*/
