@@ -1,1 +1,0 @@
-nvcc -shared -I$CUDA_PATH/samples/common/inc/   -Xcompiler -fPIC, -o CUDASig.so  -LD  dwtHaar1D.cu

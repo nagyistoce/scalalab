@@ -1,7 +1,0 @@
-
-
-// demonstrates opening the main SYMJA GUI 
-var nullArgs = new Array[String](1)
-nullArgs(0)= ""
-
-org.matheclipse.symja.Main.main(nullArgs)
