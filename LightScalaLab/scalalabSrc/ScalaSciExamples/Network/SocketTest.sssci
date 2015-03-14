@@ -1,0 +1,33 @@
+
+  import java.net._
+  import java.net.Socket
+  import scalaUtils.ScalaUtilitiesObject._
+  import java.io.PrintWriter
+  import java.util.Scanner
+  
+    
+   var loopback = java.net.InetAddress.getLoopbackAddress
+      
+     var s = new ServerSocket
+     var sa = new InetSocketAddress(loopback, 8000)
+      s.bind(sa)
+      
+      var sclient = new Socket
+      sclient.connect(sa, 8000)
+      
+      var saccepted = s.accept
+      
+      var clientWriteStream = sclient.getOutputStream
+      
+      var serverReadStream = saccepted.getInputStream
+      
+      var writer = new PrintWriter(clientWriteStream)
+      var reader = new Scanner(serverReadStream)
+      
+      writer.println("hi socket...")
+      
+      writer.flush
+      
+      var fromclient = reader.nextLine
+      
+      
